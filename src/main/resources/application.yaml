@@ -3,9 +3,9 @@ spring:
     name: RestTime
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/restime
-    username: restuser
-    password: nihad
+    url: ${DB_URL_DEV}
+    username: ${DB_USER_DEV}
+    password: ${DB_PASSWORD_DEV}
 
   jpa:
     hibernate:
@@ -14,3 +14,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  profiles:
+    active: dev

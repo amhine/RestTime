@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/testdb
-    username: testuser
-    password: nihad
+    url: ${DB_URL_TEST}
+    username: ${DB_USER_TEST}
+    password: ${DB_PASSWORD_TEST}
 
   jpa:
     hibernate:
