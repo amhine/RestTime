@@ -1,3 +1,16 @@
 spring:
   application:
     name: RestTime
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/restime
+    username: restuser
+    password: nihad
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
