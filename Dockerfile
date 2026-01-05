@@ -7,10 +7,9 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8082
-
+EXPOSE 8085
 ENTRYPOINT ["java","-jar","app.jar"]
