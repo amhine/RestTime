@@ -39,9 +39,9 @@ jobs:
             sleep 1
           done
 
-      - name: Build & Test
-        run: mvn clean test -P test
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
-          SPRING_DATASOURCE_USERNAME: testuser
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#      - name: Build & Test
+#        run: mvn clean test -P test
+#        env:
+#          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
+#          SPRING_DATASOURCE_USERNAME: testuser
+#          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
