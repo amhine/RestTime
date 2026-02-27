@@ -1,15 +1,14 @@
 package com.RestTime.RestTime.model.entity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "demandeconge")

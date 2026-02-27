@@ -1,14 +1,13 @@
 package com.RestTime.RestTime.model.entity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import com.RestTime.RestTime.model.enumeration.TypeNotification;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "notification")
