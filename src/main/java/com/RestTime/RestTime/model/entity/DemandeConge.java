@@ -37,4 +37,8 @@ public class DemandeConge {
 
     @OneToMany(mappedBy = "demandeConge")
     private List<Historique> historiques;
+
+    @ManyToOne
+    @JoinColumn(name = "planning_id")
+    private Planning planning;
 }
