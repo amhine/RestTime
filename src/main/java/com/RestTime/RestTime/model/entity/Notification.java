@@ -1,6 +1,7 @@
 package com.RestTime.RestTime.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.RestTime.RestTime.model.enumeration.TypeNotification;
@@ -8,9 +9,10 @@ import com.RestTime.RestTime.model.enumeration.TypeNotification;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "notification")
+@Builder
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,7 @@
 package com.RestTime.RestTime.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.RestTime.RestTime.model.enumeration.Role;
@@ -8,9 +9,10 @@ import com.RestTime.RestTime.model.enumeration.Role;
 import java.util.List;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "users")
+@Builder
 public class Utilisateur {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
