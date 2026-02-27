@@ -2,6 +2,7 @@ package com.RestTime.RestTime.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.RestTime.RestTime.model.enumeration.StatutAbsence;
@@ -9,9 +10,10 @@ import com.RestTime.RestTime.model.enumeration.StatutAbsence;
 import java.time.LocalDate;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "absences")
+@Builder
 public class Absence {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
