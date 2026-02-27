@@ -17,3 +17,8 @@ spring:
 
   profiles:
     active: dev
+
+resttime:
+  jwt:
+    secret-key: Base64EncodedSecretKeyMustBeAtLeast256BitsLongSoThisIsAValidExample=
+    expiration: 3600000
