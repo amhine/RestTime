@@ -1,9 +1,6 @@
 package com.RestTime.RestTime.service.impl;
 
-import com.RestTime.RestTime.dto.CreateUserRequestDTO;
-import com.RestTime.RestTime.dto.UpdateRoleRequestDTO;
-import com.RestTime.RestTime.dto.UpdateUserRequestDTO;
-import com.RestTime.RestTime.dto.UserResponseDTO;
+import com.RestTime.RestTime.dto.*;
 import com.RestTime.RestTime.mapper.UtilisateurMapper;
 import com.RestTime.RestTime.model.entity.Utilisateur;
 import com.RestTime.RestTime.repository.ServiceRepository;
@@ -94,5 +91,36 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             throw new EntityNotFoundException("Utilisateur non trouvé");
         }
         utilisateurRepository.deleteById(id);
+    }
+
+    @Override
+    public UserResponseDTO getCurrentUser(String email) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+        return utilisateurMapper.toUserResponseDTO(utilisateur);
+    }
+    @Override
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequestDTO request) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+
+        if (!passwordEncoder.matches(request.getAncienMotDePasse(), utilisateur.getMotDePasse())) {
+            throw new RuntimeException("L'ancien mot de passe est incorrect");
+        }
+
+        utilisateur.setMotDePasse(passwordEncoder.encode(request.getNouveauMotDePasse()));
+        utilisateurRepository.save(utilisateur);
+    }
+    @Override
+    public void requestPasswordReset(ForgotPasswordRequestDTO request) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("Aucun compte associé à cet email"));
+
+
+        System.out.println("--------------------------------------------------");
+        System.out.println("DEMANDE DE RESET MOT DE PASSE POUR : " + utilisateur.getEmail());
+        System.out.println("Lien simulé : http://localhost:4200/reset-password?token=AZERTY123");
+        System.out.println("--------------------------------------------------");
     }
 }

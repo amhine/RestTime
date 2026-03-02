@@ -1,9 +1,6 @@
 package com.RestTime.RestTime.service;
 
-import com.RestTime.RestTime.dto.CreateUserRequestDTO;
-import com.RestTime.RestTime.dto.UpdateRoleRequestDTO;
-import com.RestTime.RestTime.dto.UpdateUserRequestDTO;
-import com.RestTime.RestTime.dto.UserResponseDTO;
+import com.RestTime.RestTime.dto.*;
 
 import java.util.List;
 
@@ -13,4 +10,8 @@ public interface UtilisateurService {
     UserResponseDTO updateUser(Long id, UpdateUserRequestDTO request);
     UserResponseDTO updateUserRole(Long id, UpdateRoleRequestDTO request);
     void deleteUser(Long id);
+
+    UserResponseDTO getCurrentUser(String email);
+    void changePassword(String email, ChangePasswordRequestDTO request);
+    void requestPasswordReset(ForgotPasswordRequestDTO request);
 }
