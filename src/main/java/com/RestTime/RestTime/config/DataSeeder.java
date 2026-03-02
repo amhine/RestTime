@@ -24,7 +24,6 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadServiceAndAdmin() {
-        // 1. Créer le Service "Administration" s'il n'existe pas
         Service serviceAdmin = serviceRepository.findByNom("Administration")
                 .orElseGet(() -> serviceRepository.save(
                         Service.builder()
