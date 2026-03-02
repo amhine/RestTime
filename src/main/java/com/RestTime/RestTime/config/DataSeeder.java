@@ -32,16 +32,15 @@ public class DataSeeder implements CommandLineRunner {
                                 .build()
                 ));
 
-        // 2. Créer l'Utilisateur ADMIN s'il n'existe pas
         String adminEmail = "admin@resttime.com";
         if (!utilisateurRepository.existsByEmail(adminEmail)) {
             Utilisateur admin = Utilisateur.builder()
                     .nom("System")
                     .prenom("Admin")
                     .email(adminEmail)
-                    .motDePasse(passwordEncoder.encode("admin123")) // Mot de passe par défaut
+                    .motDePasse(passwordEncoder.encode("admin123"))
                     .role(Role.ADMIN)
-                    .soldeConges(999.0) // Solde illimité ou élevé pour l'admin
+                    .soldeConges(999.0)
                     .service(serviceAdmin)
                     .build();
 
