@@ -4,7 +4,7 @@ import com.RestTime.RestTime.dto.DemandeCongeCreateDTO;
 import com.RestTime.RestTime.dto.ValidationCongeDTO;
 import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.model.entity.Historique;
-import com.RestTime.RestTime.model.entity.TypeConge;
+import com.RestTime.RestTime.model.enumeration.TypeConge;
 import com.RestTime.RestTime.model.entity.User;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
 import com.RestTime.RestTime.repository.DemandeCongeRepository;
@@ -58,7 +58,7 @@ public class CongeServiceImpl implements CongeService {
                 .dateSoumission(LocalDate.now())
                 .statut(StatutDemande.EN_ATTENTE)
                 .user(user)
-                .typeConge(typeConge)
+                .type(typeConge)
                 .build();
 
         demande = demandeCongeRepository.save(demande);

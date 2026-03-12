@@ -1,4 +1,5 @@
 package com.RestTime.RestTime.model.entity;
+import com.RestTime.RestTime.model.enumeration.TypeConge;
 import jakarta.persistence.*;
 import lombok.*;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
@@ -31,9 +32,9 @@ public class DemandeConge {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "type_conge_id")
-    private TypeConge typeConge;
+
+    @Enumerated(EnumType.STRING)
+    private TypeConge type;
 
     @OneToMany(mappedBy = "demandeConge")
     private List<Historique> historiques;
