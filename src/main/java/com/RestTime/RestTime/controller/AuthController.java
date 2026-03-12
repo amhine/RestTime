@@ -25,7 +25,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
-    @PostMapping("/forgot-password")
+    @PostMapping("/forgotpassword")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
         utilisateurService.requestPasswordReset(request);
         return ResponseEntity.ok("Si l'email existe, un lien de réinitialisation a été envoyé.");

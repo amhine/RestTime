@@ -28,8 +28,8 @@ public class DemandeConge {
     private StatutDemande statut;
 
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id")
-    private Utilisateur utilisateur;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "type_conge_id")
