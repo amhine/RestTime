@@ -28,6 +28,6 @@ public class Absence {
     private StatutAbsence statut;
 
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id")
-    private Utilisateur utilisateur;
+    @JoinColumn(name = "user_id")
+    private User user;
 }
