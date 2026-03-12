@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "users")
 @Builder
-public class Utilisateur {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,16 +27,13 @@ public class Utilisateur {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ManyToOne
-    @JoinColumn(name = "service_id")
-    private Service service;
 
-    @OneToMany(mappedBy = "utilisateur")
+    @OneToMany(mappedBy = "user")
     private List<DemandeConge> demandes;
 
-    @OneToMany(mappedBy = "utilisateur")
+    @OneToMany(mappedBy = "user")
     private List<Absence> absences;
 
-    @OneToMany(mappedBy = "utilisateur")
+    @OneToMany(mappedBy = "user")
     private List<Notification> notifications;
 }

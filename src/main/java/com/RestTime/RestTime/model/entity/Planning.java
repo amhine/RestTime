@@ -24,6 +24,4 @@ public class Planning {
     @OneToMany (mappedBy = "planning")
     private List<DemandeConge> demandes;
 
-    @OneToMany(mappedBy = "planning")
-    private List<JourFerie> joursFeries;
 }
