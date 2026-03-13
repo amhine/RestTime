@@ -40,7 +40,4 @@ public class DemandeConge {
     @OneToMany(mappedBy = "demandeConge", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Historique> historiques;
 
-    @ManyToOne
-    @JoinColumn(name = "planning_id")
-    private Planning planning;
 }
