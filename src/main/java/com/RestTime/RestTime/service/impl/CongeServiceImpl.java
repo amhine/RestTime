@@ -5,12 +5,11 @@ import com.RestTime.RestTime.mapper.DemandeCongeMapper;
 import com.RestTime.RestTime.mapper.HistoriqueMapper;
 import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.model.entity.Historique;
+import com.RestTime.RestTime.model.entity.Notification;
 import com.RestTime.RestTime.model.entity.User;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
-import com.RestTime.RestTime.repository.AbsenceRepository;
-import com.RestTime.RestTime.repository.DemandeCongeRepository;
-import com.RestTime.RestTime.repository.HistoriqueRepository;
-import com.RestTime.RestTime.repository.UserRepository;
+import com.RestTime.RestTime.model.enumeration.TypeNotification;
+import com.RestTime.RestTime.repository.*;
 import com.RestTime.RestTime.service.CongeService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -34,36 +33,107 @@ public class CongeServiceImpl implements CongeService {
     private final DemandeCongeMapper demandeCongeMapper;
     private final AbsenceRepository absenceRepository;
     private final HistoriqueMapper historiqueMapper;
+    private final NotificationRepository notificationRepository;
+
 
     @Override
     @Transactional
     public DemandeCongeResponseDTO soumettreDemande(Long userId, DemandeCongeCreateDTO dto) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        LocalDate today = LocalDate.now();
+
+        if (dto.getDateDebut().isBefore(today)) {
+            throw new RuntimeException("Date de début ne peut pas être dans le passé");
+        }
 
         int nombreJours = calculerNombreJours(dto.getDateDebut(), dto.getDateFin());
 
         if (nombreJours <= 0) {
-            throw new RuntimeException("Dates invalides : la date de fin doit être égale ou postérieure à la date de début.");
+            throw new RuntimeException("Dates invalides");
         }
 
-        if (user.getSoldeConges() < nombreJours) {
-            throw new RuntimeException("Solde de congés insuffisant.");
+        boolean hasPending = demandeCongeRepository
+                .existsByUserAndStatut(user, StatutDemande.EN_ATTENTE);
+
+        if (hasPending) {
+            throw new RuntimeException("Vous avez déjà une demande en attente");
         }
+
+        boolean overlap = demandeCongeRepository
+                .existsByUserAndDateDebutLessThanEqualAndDateFinGreaterThanEqual(
+                        user,
+                        dto.getDateFin(),
+                        dto.getDateDebut()
+                );
+
+        if (overlap) {
+            throw new RuntimeException("Dates chevauchent un congé existant");
+        }
+
+
+        switch (dto.getConge()) {
+
+            case ANNUEL:
+
+                if (nombreJours > 15) {
+                    throw new RuntimeException("Congé annuel max 15 jours");
+                }
+
+                if (user.getSoldeConges() < nombreJours) {
+                    throw new RuntimeException("Solde insuffisant");
+                }
+                break;
+
+            case MALADIE:
+
+                if (nombreJours > 30) {
+                    throw new RuntimeException("Congé maladie max 30 jours");
+                }
+                break;
+
+            case EXCEPTIONNEL:
+
+                if (nombreJours > 5) {
+                    throw new RuntimeException("Congé exceptionnel max 5 jours");
+                }
+                break;
+
+            case FORMATION:
+
+                if (nombreJours > 30) {
+                    throw new RuntimeException("Congé formation max 30 jours");
+                }
+                break;
+        }
+
 
         DemandeConge demande = demandeCongeMapper.toEntity(dto);
+
         demande.setNombreJours(nombreJours);
-        demande.setDateSoumission(LocalDate.now());
+        demande.setDateSoumission(today);
         demande.setStatut(StatutDemande.EN_ATTENTE);
         demande.setUser(user);
         demande.setType(dto.getConge());
 
         demande = demandeCongeRepository.save(demande);
 
-        enregistrerHistorique(demande, "Soumission", "Demande soumise par l'employé.");
-
+        enregistrerHistorique(demande, "Soumission", "Demande soumise par l'employé");
+        Notification notification = Notification.builder()
+                .user(demande.getUser())
+                .titre("Demande soumise")
+                .message("Vous avez soumis une nouvelle demande de congé.")
+                .type(TypeNotification.DEMANDE_SOUMISE)
+                .dateEnvoi(LocalDateTime.now())
+                .lue(false)
+                .build();
+        notificationRepository.save(notification);
         return demandeCongeMapper.toResponseDTO(demande);
+
     }
+
 
     @Override
     @Transactional
@@ -71,21 +141,57 @@ public class CongeServiceImpl implements CongeService {
         DemandeConge demande = demandeCongeRepository.findById(demandeId)
                 .orElseThrow(() -> new RuntimeException("Demande introuvable"));
 
-        if (!demande.getStatut().equals(StatutDemande.EN_ATTENTE)) {
+        if (demande.getStatut() != StatutDemande.EN_ATTENTE) {
             throw new RuntimeException("La demande n'est plus en attente.");
+        }
+
+        if (dto.getStatut() != StatutDemande.VALIDEE && dto.getStatut() != StatutDemande.REFUSEE) {
+            throw new RuntimeException("Statut invalide pour traitement RH");
         }
 
         demande.setStatut(dto.getStatut());
 
-        if (dto.getStatut().equals(StatutDemande.VALIDEE)) {
+        if (dto.getStatut() == StatutDemande.VALIDEE) {
             User user = demande.getUser();
-            user.setSoldeConges(user.getSoldeConges() - demande.getNombreJours());
+            double nouveauSolde = user.getSoldeConges() - demande.getNombreJours();
+            if (nouveauSolde < 0) {
+                throw new RuntimeException("Solde insuffisant");
+            }
+            user.setSoldeConges(nouveauSolde);
             userRepository.save(user);
+
+            Notification notification = Notification.builder()
+                    .user(user)
+                    .titre("Demande validée")
+                    .message("Votre demande de congé a été validée.")
+                    .type(TypeNotification.DEMANDE_VALIDEE)
+                    .dateEnvoi(LocalDateTime.now())
+                    .lue(false)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
+        if (dto.getStatut() == StatutDemande.REFUSEE) {
+            User user = demande.getUser();
+
+            Notification notification = Notification.builder()
+                    .user(user)
+                    .titre("Demande refusée")
+                    .message("Votre demande de congé a été refusée.")
+                    .type(TypeNotification.DEMANDE_REFUSEE)
+                    .dateEnvoi(LocalDateTime.now())
+                    .lue(false)
+                    .build();
+            notificationRepository.save(notification);
         }
 
         demande = demandeCongeRepository.save(demande);
 
-        enregistrerHistorique(demande, "Traitement RH : " + dto.getStatut().name(), dto.getDetails());
+        enregistrerHistorique(
+                demande,
+                "Traitement RH : " + dto.getStatut().name(),
+                dto.getDetails()
+        );
 
         return demandeCongeMapper.toResponseDTO(demande);
     }
@@ -157,4 +263,5 @@ public class CongeServiceImpl implements CongeService {
                 .map(historiqueMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
+
 }

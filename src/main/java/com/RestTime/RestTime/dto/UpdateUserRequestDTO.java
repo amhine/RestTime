@@ -8,5 +8,4 @@ public class UpdateUserRequestDTO {
     private String prenom;
     private String email;
     private Double soldeConges;
-    private Long serviceId;
 }
