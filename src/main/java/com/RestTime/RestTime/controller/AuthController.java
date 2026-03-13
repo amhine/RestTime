@@ -3,6 +3,7 @@ package com.RestTime.RestTime.controller;
 import com.RestTime.RestTime.dto.AuthResponse;
 import com.RestTime.RestTime.dto.ForgotPasswordRequestDTO;
 import com.RestTime.RestTime.dto.LoginRequest;
+import com.RestTime.RestTime.dto.ResetPasswordRequestDTO;
 import com.RestTime.RestTime.service.AuthService;
 import com.RestTime.RestTime.service.UtilisateurService;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,10 @@ public class AuthController {
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
         utilisateurService.requestPasswordReset(request);
         return ResponseEntity.ok("Si l'email existe, un lien de réinitialisation a été envoyé.");
+    }
+    @PostMapping("/resetpassword")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request) {
+        utilisateurService.resetPassword(request.getToken(), request.getNouveauMotDePasse());
+        return ResponseEntity.ok("Votre mot de passe a été modifié avec succès.");
     }
 }

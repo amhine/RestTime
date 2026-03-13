@@ -15,4 +15,5 @@ public interface UtilisateurService {
     UserResponseDTO getCurrentUser(String email);
     void changePassword(String email, ChangePasswordRequestDTO request);
     void requestPasswordReset(ForgotPasswordRequestDTO request);
+    void resetPassword(String token, String newPassword);
 }
