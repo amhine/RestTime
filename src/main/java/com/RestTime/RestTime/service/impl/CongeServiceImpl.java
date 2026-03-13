@@ -1,19 +1,19 @@
 package com.RestTime.RestTime.service.impl;
 
-import com.RestTime.RestTime.dto.DemandeCongeCreateDTO;
-import com.RestTime.RestTime.dto.DemandeCongeResponseDTO;
-import com.RestTime.RestTime.dto.ValidationCongeDTO;
+import com.RestTime.RestTime.dto.*;
 import com.RestTime.RestTime.mapper.DemandeCongeMapper;
+import com.RestTime.RestTime.mapper.HistoriqueMapper;
 import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.model.entity.Historique;
-import com.RestTime.RestTime.model.enumeration.TypeConge;
 import com.RestTime.RestTime.model.entity.User;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
+import com.RestTime.RestTime.repository.AbsenceRepository;
 import com.RestTime.RestTime.repository.DemandeCongeRepository;
 import com.RestTime.RestTime.repository.HistoriqueRepository;
 import com.RestTime.RestTime.repository.UserRepository;
 import com.RestTime.RestTime.service.CongeService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,8 @@ public class CongeServiceImpl implements CongeService {
     private final UserRepository userRepository;
     private final HistoriqueRepository historiqueRepository;
     private final DemandeCongeMapper demandeCongeMapper;
+    private final AbsenceRepository absenceRepository;
+    private final HistoriqueMapper historiqueMapper;
 
     @Override
     @Transactional
@@ -120,5 +123,38 @@ public class CongeServiceImpl implements CongeService {
                 .demandeConge(demande)
                 .build();
         historiqueRepository.save(historique);
+    }
+    @Override
+    public DemandeCongeResponseDTO getDemandeById(Long id) {
+        DemandeConge demande = demandeCongeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Demande introuvable avec l'id : " + id));
+        return demandeCongeMapper.toResponseDTO(demande);
+    }
+
+    @Override
+    public StatistiquesRhDTO getStatistiques() {
+        long total      = demandeCongeRepository.count();
+        long approuvees = demandeCongeRepository.countByStatut(StatutDemande.VALIDEE);
+        long refusees   = demandeCongeRepository.countByStatut(StatutDemande.REFUSEE);
+        long enAttente  = demandeCongeRepository.countByStatut(StatutDemande.EN_ATTENTE);
+        long absences   = absenceRepository.count();
+        long employes   = userRepository.count();
+
+        return StatistiquesRhDTO.builder()
+                .totalDemandes(total)
+                .demandesApprouvees(approuvees)
+                .demandesRefusees(refusees)
+                .demandesEnAttente(enAttente)
+                .totalAbsences(absences)
+                .tauxApprobation(total > 0 ? (approuvees * 100.0 / total) : 0)
+                .tauxAbsenteisme(employes > 0 ? (absences * 100.0 / employes) : 0)
+                .build();
+    }
+
+    @Override
+    public List<HistoriqueResponseDTO> getHistoriqueGlobal() {
+        return historiqueRepository.findAll().stream()
+                .map(historiqueMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 }

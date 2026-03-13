@@ -1,6 +1,8 @@
 package com.RestTime.RestTime.controller;
 
 import com.RestTime.RestTime.dto.DemandeCongeResponseDTO;
+import com.RestTime.RestTime.dto.HistoriqueResponseDTO;
+import com.RestTime.RestTime.dto.StatistiquesRhDTO;
 import com.RestTime.RestTime.dto.ValidationCongeDTO;
 import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.service.CongeService;
@@ -27,5 +29,20 @@ public class RhCongeController {
             @PathVariable Long demandeId,
             @RequestBody ValidationCongeDTO dto) {
         return ResponseEntity.ok(congeService.traiterDemande(demandeId, dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DemandeCongeResponseDTO> getDemandeById(@PathVariable Long id) {
+        return ResponseEntity.ok(congeService.getDemandeById(id));
+    }
+
+    @GetMapping("/statistiques")
+    public ResponseEntity<StatistiquesRhDTO> getStatistiques() {
+        return ResponseEntity.ok(congeService.getStatistiques());
+    }
+
+    @GetMapping("/historique")
+    public ResponseEntity<List<HistoriqueResponseDTO>> getHistoriqueGlobal() {
+        return ResponseEntity.ok(congeService.getHistoriqueGlobal());
     }
 }

@@ -27,7 +27,12 @@ public class UtilisateurServiceImpl implements UtilisateurService {
                 .map(utilisateurMapper::toUserResponseDTO)
                 .collect(Collectors.toList());
     }
-
+    @Override
+    public UserResponseDTO getUserById(Long id) {
+        User user = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'id : " + id));
+        return utilisateurMapper.toUserResponseDTO(user);
+    }
     @Override
     @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO request) {
