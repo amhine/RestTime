@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.RestTime.RestTime.model.enumeration.Role;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -36,4 +37,10 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Notification> notifications;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_creation_date")
+    private LocalDateTime resetTokenCreationDate;
 }

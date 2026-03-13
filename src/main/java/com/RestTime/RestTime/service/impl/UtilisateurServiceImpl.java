@@ -4,14 +4,19 @@ import com.RestTime.RestTime.dto.*;
 import com.RestTime.RestTime.mapper.UtilisateurMapper;
 import com.RestTime.RestTime.model.entity.User;
 import com.RestTime.RestTime.repository.UserRepository;
+import com.RestTime.RestTime.service.EmailService;
 import com.RestTime.RestTime.service.UtilisateurService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
 
 
 @Service
@@ -21,6 +26,9 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private final UserRepository utilisateurRepository;
     private final UtilisateurMapper utilisateurMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+
     @Override
     public List<UserResponseDTO> getAllUsers() {
         return utilisateurRepository.findAll().stream()
@@ -106,15 +114,39 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         user.setMotDePasse(passwordEncoder.encode(request.getNouveauMotDePasse()));
         utilisateurRepository.save(user);
     }
+
     @Override
     public void requestPasswordReset(ForgotPasswordRequestDTO request) {
         User user = utilisateurRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("Aucun compte associé à cet email"));
 
+        String token = UUID.randomUUID().toString();
 
-        System.out.println("--------------------------------------------------");
-        System.out.println("DEMANDE DE RESET MOT DE PASSE POUR : " + user.getEmail());
-        System.out.println("Lien simulé : http://localhost:4200/reset-password?token=AZERTY123");
-        System.out.println("--------------------------------------------------");
+        user.setResetToken(token);
+        user.setResetTokenCreationDate(LocalDateTime.now());
+        utilisateurRepository.save(user);
+
+        String resetLink = "http://localhost:4200/reset-password?token=" + token;
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        User user = utilisateurRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Lien de réinitialisation invalide ou expiré"));
+
+        if (user.getResetTokenCreationDate().plusMinutes(10).isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Le lien de réinitialisation a expiré");
+        }
+
+        user.setMotDePasse(passwordEncoder.encode(newPassword));
+
+        user.setResetToken(null);
+        user.setResetTokenCreationDate(null);
+
+        utilisateurRepository.save(user);
+    }
+
 }
