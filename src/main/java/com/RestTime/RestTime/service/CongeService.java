@@ -1,15 +1,16 @@
 package com.RestTime.RestTime.service;
 
 import com.RestTime.RestTime.dto.DemandeCongeCreateDTO;
+import com.RestTime.RestTime.dto.DemandeCongeResponseDTO;
 import com.RestTime.RestTime.dto.ValidationCongeDTO;
-import com.RestTime.RestTime.model.entity.DemandeConge;
 
 import java.util.List;
 
 public interface CongeService {
-    DemandeConge soumettreDemande(Long userId, DemandeCongeCreateDTO dto);
-    List<DemandeConge> getMesDemandes(Long userId);
+    DemandeCongeResponseDTO soumettreDemande(Long userId, DemandeCongeCreateDTO dto);
 
-    List<DemandeConge> getDemandesEnAttente();
-    DemandeConge traiterDemande(Long demandeId, ValidationCongeDTO dto);
+    List<DemandeCongeResponseDTO> getMesDemandes(Long userId);
+    List<DemandeCongeResponseDTO> getDemandesEnAttente();
+
+    DemandeCongeResponseDTO traiterDemande(Long demandeId, ValidationCongeDTO dto);
 }

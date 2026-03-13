@@ -1,5 +1,6 @@
 package com.RestTime.RestTime.controller;
 
+import com.RestTime.RestTime.dto.DemandeCongeResponseDTO;
 import com.RestTime.RestTime.dto.ValidationCongeDTO;
 import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.service.CongeService;
@@ -17,12 +18,12 @@ public class RhCongeController {
     private final CongeService congeService;
 
     @GetMapping("/enattente")
-    public ResponseEntity<List<DemandeConge>> getDemandesEnAttente() {
+    public ResponseEntity<List<DemandeCongeResponseDTO>> getDemandesEnAttente() {
         return ResponseEntity.ok(congeService.getDemandesEnAttente());
     }
 
     @PutMapping("/{demandeId}/traiter")
-    public ResponseEntity<DemandeConge> traiterDemande(
+    public ResponseEntity<DemandeCongeResponseDTO> traiterDemande(
             @PathVariable Long demandeId,
             @RequestBody ValidationCongeDTO dto) {
         return ResponseEntity.ok(congeService.traiterDemande(demandeId, dto));

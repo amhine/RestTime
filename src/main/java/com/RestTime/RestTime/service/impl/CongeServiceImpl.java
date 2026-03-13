@@ -1,7 +1,9 @@
 package com.RestTime.RestTime.service.impl;
 
 import com.RestTime.RestTime.dto.DemandeCongeCreateDTO;
+import com.RestTime.RestTime.dto.DemandeCongeResponseDTO;
 import com.RestTime.RestTime.dto.ValidationCongeDTO;
+import com.RestTime.RestTime.mapper.DemandeCongeMapper;
 import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.model.entity.Historique;
 import com.RestTime.RestTime.model.enumeration.TypeConge;
@@ -9,7 +11,6 @@ import com.RestTime.RestTime.model.entity.User;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
 import com.RestTime.RestTime.repository.DemandeCongeRepository;
 import com.RestTime.RestTime.repository.HistoriqueRepository;
-import com.RestTime.RestTime.repository.TypeCongeRepository;
 import com.RestTime.RestTime.repository.UserRepository;
 import com.RestTime.RestTime.service.CongeService;
 
@@ -28,17 +29,14 @@ public class CongeServiceImpl implements CongeService {
 
     private final DemandeCongeRepository demandeCongeRepository;
     private final UserRepository userRepository;
-    private final TypeCongeRepository typeCongeRepository;
     private final HistoriqueRepository historiqueRepository;
+    private final DemandeCongeMapper demandeCongeMapper;
 
     @Override
     @Transactional
-    public DemandeConge soumettreDemande(Long userId, DemandeCongeCreateDTO dto) {
+    public DemandeCongeResponseDTO soumettreDemande(Long userId, DemandeCongeCreateDTO dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-
-        TypeConge typeConge = typeCongeRepository.findById(dto.getTypeCongeId())
-                .orElseThrow(() -> new RuntimeException("Type de congé introuvable"));
 
         int nombreJours = calculerNombreJours(dto.getDateDebut(), dto.getDateFin());
 
@@ -50,27 +48,23 @@ public class CongeServiceImpl implements CongeService {
             throw new RuntimeException("Solde de congés insuffisant.");
         }
 
-        DemandeConge demande = DemandeConge.builder()
-                .dateDebut(dto.getDateDebut())
-                .dateFin(dto.getDateFin())
-                .nombreJours(nombreJours)
-                .motif(dto.getMotif())
-                .dateSoumission(LocalDate.now())
-                .statut(StatutDemande.EN_ATTENTE)
-                .user(user)
-                .type(typeConge)
-                .build();
+        DemandeConge demande = demandeCongeMapper.toEntity(dto);
+        demande.setNombreJours(nombreJours);
+        demande.setDateSoumission(LocalDate.now());
+        demande.setStatut(StatutDemande.EN_ATTENTE);
+        demande.setUser(user);
+        demande.setType(dto.getConge());
 
         demande = demandeCongeRepository.save(demande);
 
         enregistrerHistorique(demande, "Soumission", "Demande soumise par l'employé.");
 
-        return demande;
+        return demandeCongeMapper.toResponseDTO(demande);
     }
 
     @Override
     @Transactional
-    public DemandeConge traiterDemande(Long demandeId, ValidationCongeDTO dto) {
+    public DemandeCongeResponseDTO traiterDemande(Long demandeId, ValidationCongeDTO dto) {
         DemandeConge demande = demandeCongeRepository.findById(demandeId)
                 .orElseThrow(() -> new RuntimeException("Demande introuvable"));
 
@@ -86,25 +80,30 @@ public class CongeServiceImpl implements CongeService {
             userRepository.save(user);
         }
 
-        demandeCongeRepository.save(demande);
+        demande = demandeCongeRepository.save(demande);
 
         enregistrerHistorique(demande, "Traitement RH : " + dto.getStatut().name(), dto.getDetails());
 
-        return demande;
+        return demandeCongeMapper.toResponseDTO(demande);
     }
-
     @Override
-    public List<DemandeConge> getMesDemandes(Long userId) {
+    public List<DemandeCongeResponseDTO> getMesDemandes(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        return demandeCongeRepository.findByUser(user);
+
+        return demandeCongeRepository.findByUser(user)
+                .stream()
+                .map(demandeCongeMapper::toResponseDTO)
+                .toList();
     }
 
     @Override
-    public List<DemandeConge> getDemandesEnAttente() {
-        return demandeCongeRepository.findByStatut(StatutDemande.EN_ATTENTE);
+    public List<DemandeCongeResponseDTO> getDemandesEnAttente() {
+        return demandeCongeRepository.findByStatut(StatutDemande.EN_ATTENTE)
+                .stream()
+                .map(demandeCongeMapper::toResponseDTO)
+                .toList();
     }
-
     private int calculerNombreJours(LocalDate debut, LocalDate fin) {
         if (fin.isBefore(debut)) {
             return 0;

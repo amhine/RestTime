@@ -11,5 +11,4 @@ public class CreateUserRequestDTO {
     private String motDePasse;
     private Double soldeConges;
     private Role role;
-    private Long serviceId;
 }
