@@ -25,7 +25,10 @@ public class AdminUserController {
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(utilisateurService.getAllUsers());
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(utilisateurService.getUserById(id));
+    }
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody CreateUserRequestDTO request) {
         UserResponseDTO createdUser = utilisateurService.createUser(request);

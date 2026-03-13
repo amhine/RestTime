@@ -9,4 +9,5 @@ import java.util.List;
 public interface DemandeCongeRepository extends JpaRepository<DemandeConge, Long> {
     List<DemandeConge> findByUser(User user);
     List<DemandeConge> findByStatut(StatutDemande statut);
+    long countByStatut(StatutDemande statut);
 }

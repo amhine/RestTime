@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface UtilisateurService {
     List<UserResponseDTO> getAllUsers();
+    UserResponseDTO getUserById(Long id);
     UserResponseDTO createUser(CreateUserRequestDTO request);
     UserResponseDTO updateUser(Long id, UpdateUserRequestDTO request);
     UserResponseDTO updateUserRole(Long id, UpdateRoleRequestDTO request);

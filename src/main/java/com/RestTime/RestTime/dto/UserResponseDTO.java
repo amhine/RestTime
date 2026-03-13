@@ -13,5 +13,4 @@ public class UserResponseDTO {
     private String email;
     private Double soldeConges;
     private Role role;
-    private String nomService;
 }
