@@ -4,7 +4,7 @@ services:
     container_name: restime_db
     restart: always
     ports:
-      - "5432:5432"
+      - "5436:5432"
     environment:
       POSTGRES_DB: restime
       POSTGRES_USER: restuser
@@ -22,7 +22,7 @@ services:
     container_name: restime_app
     restart: on-failure
     ports:
-      - "8080:8080"
+      - "8083:8083"
     env_file: .env
     depends_on:
       db:

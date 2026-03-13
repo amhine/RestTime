@@ -12,11 +12,9 @@ public interface UtilisateurMapper {
 
     AuthResponse toAuthResponse(String token);
 
-    @Mapping(source = "service.nom", target = "nomService")
     UserResponseDTO toUserResponseDTO(User user);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "service", ignore = true)
     @Mapping(target = "demandes", ignore = true)
     @Mapping(target = "absences", ignore = true)
     @Mapping(target = "notifications", ignore = true)

@@ -18,6 +18,9 @@ spring:
   profiles:
     active: dev
 
+server:
+  port: 8083
+
 resttime:
   jwt:
     secret-key: Base64EncodedSecretKeyMustBeAtLeast256BitsLongSoThisIsAValidExample=
