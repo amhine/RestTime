@@ -24,6 +24,7 @@ public class DemandeConge {
     private Integer nombreJours;
     private String motif;
     private LocalDate dateSoumission;
+    private String cheminJustificatif;
 
     @Enumerated(EnumType.STRING)
     private StatutDemande statut;
@@ -36,7 +37,7 @@ public class DemandeConge {
     @Enumerated(EnumType.STRING)
     private TypeConge type;
 
-    @OneToMany(mappedBy = "demandeConge")
+    @OneToMany(mappedBy = "demandeConge", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Historique> historiques;
 
     @ManyToOne

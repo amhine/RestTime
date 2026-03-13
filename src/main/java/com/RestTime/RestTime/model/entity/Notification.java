@@ -21,6 +21,9 @@ public class Notification {
     private String message;
     private LocalDateTime dateEnvoi;
 
+    @Builder.Default
+    private boolean lue = false;
+
     @Enumerated(EnumType.STRING)
     private TypeNotification type;
 
