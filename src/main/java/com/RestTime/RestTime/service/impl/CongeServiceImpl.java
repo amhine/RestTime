@@ -7,6 +7,7 @@ import com.RestTime.RestTime.model.entity.DemandeConge;
 import com.RestTime.RestTime.model.entity.Historique;
 import com.RestTime.RestTime.model.entity.Notification;
 import com.RestTime.RestTime.model.entity.User;
+import com.RestTime.RestTime.model.enumeration.Role;
 import com.RestTime.RestTime.model.enumeration.StatutDemande;
 import com.RestTime.RestTime.model.enumeration.TypeNotification;
 import com.RestTime.RestTime.repository.*;
@@ -129,6 +130,21 @@ public class CongeServiceImpl implements CongeService {
                 .dateEnvoi(LocalDateTime.now())
                 .lue(false)
                 .build();
+        List<User> rhs = userRepository.findByRole(Role.RH);
+
+        for (User rh : rhs) {
+            Notification notificationRH = Notification.builder()
+                    .user(rh)
+                    .titre("Nouvelle demande de congé")
+                    .message("🆕 " + user.getNom() + " " + user.getPrenom()
+                            + " a soumis une demande de congé.")
+                    .type(TypeNotification.DEMANDE_SOUMISE)
+                    .dateEnvoi(LocalDateTime.now())
+                    .lue(false)
+                    .build();
+
+            notificationRepository.save(notificationRH);
+        }
         notificationRepository.save(notification);
         return demandeCongeMapper.toResponseDTO(demande);
 
